@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
-// Feature modules
 import { PatientModule } from './patient/patient.module';
 import { MessageModule } from './message/message.module';
 import { ChatModule } from './chat/chat.module';
@@ -12,24 +11,25 @@ import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
   imports: [
-    // Load environment variables globally
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-
-    // PostgreSQL TypeORM configuration using DATABASE_URL
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: true, // ⚠️ Disable in production
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql',
+        host: config.get<string>('DB_HOST'),
+        port: Number(config.get<number>('DB_PORT')) || 3306,
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASS'),
+        database: config.get<string>('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
-
-    // JWT module using secret from .env
+    PatientModule,
+    MessageModule,
+    ChatModule,
+    AdminModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -38,12 +38,6 @@ import { JwtStrategy } from './auth/jwt.strategy';
       }),
       inject: [ConfigService],
     }),
-
-    // Feature modules
-    PatientModule,
-    MessageModule,
-    ChatModule,
-    AdminModule,
   ],
   providers: [JwtStrategy],
 })
