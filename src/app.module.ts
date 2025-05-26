@@ -24,10 +24,14 @@ import { JwtStrategy } from './auth/jwt.strategy';
         type: 'postgres',
         url: config.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: config.get<string>('NODE_ENV') !== 'production', // safer
+        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        ssl: {
+          rejectUnauthorized: false, // required for Supabase SSL
+        },
       }),
       inject: [ConfigService],
     }),
+    
 
     // JwtModule config with env secret
     JwtModule.registerAsync({
