@@ -7,9 +7,13 @@ async function bootstrap() {
 
   // Enable CORS to allow frontend access
   app.enableCors({
-    origin: 'http://localhost:8080',
-    credentials: true,  // If you want to support cookies or authentication headers
+    origin: [
+      'http://localhost:8080',
+      'https://patient-clinic-bridge-git-main-md-shahrukh-khans-projects.vercel.app',
+    ],
+    credentials: true,
   });
+  
 
   // Enable global validation pipe
   app.useGlobalPipes(new ValidationPipe());
